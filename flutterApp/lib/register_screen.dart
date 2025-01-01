@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'onboarding_screen.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -38,9 +39,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // Navigate to next screen after verification
+      // Navigate to OnboardingScreen after verification
       Future.delayed(Duration(seconds: 2), () {
-        Navigator.of(context).pop(true); // Return true to indicate success
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OnboardingScreen(),
+          ),
+        );
       });
     }
   }
@@ -510,7 +516,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onPressed: () async {
             if (_formKey.currentState!.validate() && _acceptTerms) {
               // Navigate to verification screen
-              final result = await Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => EmailVerificationScreen(
@@ -519,22 +525,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               );
-
-              if (result == true) {
-                // Registration and verification successful
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      isEnglish
-                          ? "Registration successful!"
-                          : "Kayıt işlemi başarılı!",
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                // Navigate to main screen or login
-                Navigator.pop(context);
-              }
             } else if (!_acceptTerms) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

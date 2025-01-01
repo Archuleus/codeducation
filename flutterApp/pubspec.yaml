@@ -30,13 +30,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  animate_do: ^3.1.2
-  fluttermoji: 1.0.2
+  animate_do: ^3.0.2
+  fluttermoji: ^1.0.2
   flutter_svg: ^2.0.5
   webview_flutter: ^4.8.0
   flutter_localizations:
     sdk: flutter
   intl: ^0.18.0
+  shared_preferences: ^2.2.2
 
 
 

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'avatar_customizer_screen.dart';
 import 'points_system.dart';
+import 'widgets/language_switch.dart';
+import 'services/language_service.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class _MainScreenState extends State<MainScreen>
   bool _isDrawerOpen = false;
   int _selectedIndex = 0;
   double _health = 1.0; // Full health
+  late bool _isEnglish;
 
   late AnimationController _drawerAnimationController;
   late Animation<double> _healthAnimation;
@@ -21,6 +24,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+    _loadLanguagePreference();
 
     _drawerAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -41,6 +45,13 @@ class _MainScreenState extends State<MainScreen>
 
     // Start with full health
     _health = 1.0;
+  }
+
+  Future<void> _loadLanguagePreference() async {
+    final languageService = await LanguageService.getInstance();
+    setState(() {
+      _isEnglish = languageService.isEnglish;
+    });
   }
 
   void toggleDrawer() {
@@ -275,7 +286,7 @@ class _MainScreenState extends State<MainScreen>
                           ),
                           SizedBox(width: 8),
                           Text(
-                            "Level 1",
+                            _isEnglish ? "Level 1" : "Seviye 1",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -325,6 +336,7 @@ class _MainScreenState extends State<MainScreen>
                             level: "1",
                             isCompleted: true,
                             isActive: true,
+                            isEnglish: _isEnglish,
                           ),
                         ),
 
@@ -336,6 +348,7 @@ class _MainScreenState extends State<MainScreen>
                             level: "2",
                             isCompleted: false,
                             isActive: true,
+                            isEnglish: _isEnglish,
                           ),
                         ),
 
@@ -347,6 +360,7 @@ class _MainScreenState extends State<MainScreen>
                             level: "3",
                             isCompleted: false,
                             isActive: false,
+                            isEnglish: _isEnglish,
                           ),
                         ),
 
@@ -358,6 +372,7 @@ class _MainScreenState extends State<MainScreen>
                             level: "4",
                             isCompleted: false,
                             isActive: false,
+                            isEnglish: _isEnglish,
                           ),
                         ),
 
@@ -369,6 +384,7 @@ class _MainScreenState extends State<MainScreen>
                             level: "5",
                             isCompleted: false,
                             isActive: false,
+                            isEnglish: _isEnglish,
                           ),
                         ),
                       ],
@@ -558,6 +574,15 @@ class _MainScreenState extends State<MainScreen>
                             ),
                           ),
                         ),
+                        SizedBox(height: 16),
+                        LanguageSwitch(
+                          darkMode: true,
+                          onLanguageChanged: (isEnglish) {
+                            setState(() {
+                              _isEnglish = isEnglish;
+                            });
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -570,7 +595,9 @@ class _MainScreenState extends State<MainScreen>
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
-                      "Available Unlocks",
+                      _isEnglish
+                          ? "Available Unlocks"
+                          : "Kullanılabilir Özellikler",
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
@@ -640,7 +667,7 @@ class _MainScreenState extends State<MainScreen>
           child: Icon(icon, color: color, size: 24),
         ),
         title: Text(
-          title,
+          _isEnglish ? title : _getLocalizedTitle(title),
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -662,6 +689,27 @@ class _MainScreenState extends State<MainScreen>
         },
       ),
     );
+  }
+
+  String _getLocalizedTitle(String title) {
+    switch (title) {
+      case 'Lives':
+        return 'Canlar';
+      case 'Score':
+        return 'Puan';
+      case 'Points':
+        return 'Puanlar';
+      case 'Available Unlocks':
+        return 'Kullanılabilir Özellikler';
+      case 'Settings':
+        return 'Ayarlar';
+      case 'About':
+        return 'Hakkında';
+      case 'Logout':
+        return 'Çıkış Yap';
+      default:
+        return title;
+    }
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
@@ -691,7 +739,7 @@ class _MainScreenState extends State<MainScreen>
             ),
             SizedBox(height: 4),
             Text(
-              label,
+              _isEnglish ? label : _getLocalizedNavLabel(label),
               style: TextStyle(
                 color: isSelected ? Color(0xFF7277E4) : Colors.grey,
                 fontSize: 12,
@@ -702,6 +750,21 @@ class _MainScreenState extends State<MainScreen>
         ),
       ),
     );
+  }
+
+  String _getLocalizedNavLabel(String label) {
+    switch (label) {
+      case 'Home':
+        return 'Ana Sayfa';
+      case 'Progress':
+        return 'İlerleme';
+      case 'Practice':
+        return 'Alıştırma';
+      case 'Profile':
+        return 'Profil';
+      default:
+        return label;
+    }
   }
 }
 
@@ -719,18 +782,17 @@ class AvatarCustomizer extends StatelessWidget {
 
 class LevelButton extends StatelessWidget {
   final IconData icon;
-
   final String level;
-
   final bool isCompleted;
-
   final bool isActive;
+  final bool isEnglish;
 
   const LevelButton({
     required this.icon,
     required this.level,
     required this.isCompleted,
     required this.isActive,
+    this.isEnglish = true,
   });
 
   @override
@@ -799,7 +861,7 @@ class LevelButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
           ),
           child: Text(
-            "Level $level",
+            isEnglish ? "Level $level" : "Seviye $level",
             style: TextStyle(
               color: Colors.white,
               fontSize: 12,
