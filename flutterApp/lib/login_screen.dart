@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_app/main_screen.dart';
 import 'register_screen.dart';
-import 'first_screen.dart';
-
+import 'widgets/language_switch.dart';
+import 'services/language_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,6 +15,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isEnglish = false; // Varsayılan dil Türkçe
   bool canChangeLanguage = true;
   Timer? _timer;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _forgotPasswordEmailController =
+      TextEditingController();
 
   void _changeLanguage() {
     if (canChangeLanguage) {
@@ -43,6 +47,108 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => RegisterScreen(isEnglish: isEnglish),
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Column(
+          children: [
+            Icon(
+              Icons.lock_reset,
+              size: 50,
+              color: Color.fromRGBO(143, 148, 251, 1),
+            ),
+            SizedBox(height: 10),
+            Text(
+              isEnglish ? 'Reset Password' : 'Şifre Sıfırlama',
+              style: TextStyle(
+                color: Color.fromRGBO(143, 148, 251, 1),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Container(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isEnglish
+                    ? 'Enter your email address to reset your password'
+                    : 'Şifrenizi sıfırlamak için e-posta adresinizi girin',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _forgotPasswordEmailController,
+                decoration: InputDecoration(
+                  hintText: isEnglish ? 'Email' : 'E-posta',
+                  prefixIcon: Icon(Icons.email,
+                      color: Color.fromRGBO(143, 148, 251, 1)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        BorderSide(color: Color.fromRGBO(143, 148, 251, 1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                        color: Color.fromRGBO(143, 148, 251, 1), width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              isEnglish ? 'Cancel' : 'İptal',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // TODO: Implement password reset logic
+              if (_forgotPasswordEmailController.text.isNotEmpty) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isEnglish
+                          ? 'Password reset link has been sent to your email'
+                          : 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromRGBO(143, 148, 251, 1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              isEnglish ? 'Send' : 'Gönder',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -112,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ? "Email or Phone number"
                                           : "E-posta veya Telefon numarası",
                                       hintStyle:
-                                      TextStyle(color: Colors.grey[700]),
+                                          TextStyle(color: Colors.grey[700]),
                                     ),
                                   ),
                                 ),
@@ -123,9 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText:
-                                      isEnglish ? "Password" : "Şifre",
+                                          isEnglish ? "Password" : "Şifre",
                                       hintStyle:
-                                      TextStyle(color: Colors.grey[700]),
+                                          TextStyle(color: Colors.grey[700]),
                                     ),
                                   ),
                                 ),
@@ -141,11 +247,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                 builder: (context) => MainScreen(), // Burada FirstScreen'e yönlendiriyoruz
+                                  builder: (context) =>
+                                      MainScreen(), // Burada FirstScreen'e yönlendiriyoruz
                                 ),
                               );
                             },
-
                             child: Container(
                               height: 50,
                               decoration: BoxDecoration(
@@ -168,16 +274,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
                         SizedBox(height: 35),
                         FadeInUp(
                           duration: Duration(milliseconds: 2000),
-                          child: Text(
-                            isEnglish ? "Forgot Password" : "Şifremi Unuttum",
-                            style: TextStyle(
+                          child: GestureDetector(
+                            onTap: _showForgotPasswordDialog,
+                            child: Text(
+                              isEnglish ? "Forgot Password" : "Şifremi Unuttum",
+                              style: TextStyle(
                                 color: Color.fromRGBO(143, 148, 251, 1),
                                 fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline),
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
                           ),
                         ),
                         FadeInUp(
